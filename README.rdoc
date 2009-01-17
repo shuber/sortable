@@ -1,0 +1,20 @@
+= sortable
+
+Allows you to sort ActiveRecord records similar to http://github.com/rails/acts_as_list but with support for multiple scopes and lists
+
+
+== Installation
+
+  gem install shuber-sortable --source http://gems.github.com
+  OR
+  script/plugin install git://github.com/shuber/sortable.git
+
+
+== Usage
+
+Coming soon...
+
+
+== Contact
+
+Problems, comments, and suggestions all welcome: shuber@huberry.com
