@@ -142,4 +142,89 @@ class SortableTest < Test::Unit::TestCase
     assert_equal 2, @todo.last_position(:client)
   end
   
+  def test_should_move_down
+    @todo = Todo.create
+    Todo.create
+    assert_equal 1, @todo.client_priority
+    @todo.move_down!(:client)
+    assert_equal 2, @todo.client_priority
+  end
+  
+  def test_should_move_up
+    Todo.create
+    @todo = Todo.create
+    assert_equal 2, @todo.client_priority
+    @todo.move_up!(:client)
+    assert_equal 1, @todo.client_priority
+  end
+  
+  def test_should_move_to_bottom
+    @todo = Todo.create
+    Todo.create
+    Todo.create
+    assert_equal 1, @todo.client_priority
+    @todo.move_to_bottom!(:client)
+    assert_equal 3, @todo.client_priority
+  end
+  
+  def test_should_move_to_top
+    Todo.create
+    Todo.create
+    @todo = Todo.create
+    assert_equal 3, @todo.client_priority
+    @todo.move_to_top!(:client)
+    assert_equal 1, @todo.client_priority
+  end
+  
+  def test_should_return_next_item
+    @todo = Todo.create
+    @todo_2 = Todo.create
+    assert_equal @todo_2, @todo.next_item(:client)
+    assert_nil @todo_2.next_item(:client)
+  end
+  
+  def test_should_return_previous_item
+    @todo = Todo.create
+    @todo_2 = Todo.create
+    assert_equal @todo, @todo_2.previous_item(:client)
+    assert_nil @todo.previous_item(:client)
+  end
+  
+  def test_should_clear_sortable_scope_changes_when_reloading
+    @todo = Todo.create
+    @todo.project_id = 1
+    assert @todo.sortable_scope_changed?
+    @todo.reload
+    assert !@todo.sortable_scope_changed?
+  end
+  
+  def test_should_remove_from_list
+    @todo = Todo.create
+    @todo_2 = Todo.create
+    assert_equal 1, @todo.client_priority
+    assert_equal 2, @todo_2.client_priority
+    @todo.remove_from_list!(:client)
+    @todo_2.reload
+    assert_nil @todo.client_priority
+    assert_equal 1, @todo_2.client_priority
+  end
+  
+  def test_should_return_boolean_for_sortable_scope_changed?
+    @todo = Todo.new
+    assert !@todo.sortable_scope_changed?
+    @todo.project_id = 1
+    assert !@todo.sortable_scope_changed?
+    assert @todo.save
+    @todo.reload
+    @todo.project_id = 2
+    assert @todo.sortable_scope_changed?
+  end
+  
+  def test_should_raise_invalid_sortable_list_error_if_list_does_not_exist
+    @todo = Todo.create
+    assert_raises ::Huberry::Sortable::InvalidSortableList do
+      @todo.move_up!(:invalid)
+    end
+  end
+  
 end

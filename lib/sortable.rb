@@ -1,7 +1,9 @@
 module Huberry
   module Sortable
+    class InvalidSortableList < StandardError; end
+    
     def assert_sortable_list_exists!(list_name)
-      raise "sortable list '#{list_name}' does not exist" unless sortable_lists.has_key?(list_name.to_s)
+      raise ::Huberry::Sortable::InvalidSortableList.new("sortable list '#{list_name}' does not exist") unless sortable_lists.has_key?(list_name.to_s)
     end
     
     def sortable(options = {})
@@ -36,6 +38,7 @@ module Huberry
           before_create :add_to_lists
           before_destroy :remove_from_lists
           before_update :update_lists, :if => :sortable_scope_changed?
+          alias_method_chain :reload, :sortable
         end
       end
       
