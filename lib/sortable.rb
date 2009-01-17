@@ -50,7 +50,7 @@ module Huberry
       
       def first_item(list_name = nil)
         options = evaluate_sortable_options(list_name)
-        self.class.send("find_by_#{options[:column]}", 1, :conditions => options[:conditions])
+        self.class.send("find_by_#{options[:column]}".to_sym, 1, :conditions => options[:conditions])
       end
       
       def first_item?(list_name = nil)
@@ -67,7 +67,7 @@ module Huberry
           add_to_list!(list_name)
         else
           move_lower_items(:down, position - 1, list_name)
-          send("#{evaluate_sortable_options(list_name)[:column]}=", position)
+          send("#{evaluate_sortable_options(list_name)[:column]}=".to_sym, position)
           save
         end
       end
@@ -75,7 +75,7 @@ module Huberry
       
       def item_at_offset(offset, list_name = nil)
         options = evaluate_sortable_options(list_name)
-        in_list?(list_name) ? self.class.send("find_by_#{options[:column]}", send(options[:column]) + offset) : nil
+        in_list?(list_name) ? self.class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset) : nil
       end
       
       def last_item(list_name = nil)
@@ -138,7 +138,7 @@ module Huberry
       protected
         
         def add_to_list(list_name = nil)
-          send("#{evaluate_sortable_options(list_name)[:column]}=", last_position(list_name) + 1)
+          send("#{evaluate_sortable_options(list_name)[:column]}=".to_sym, last_position(list_name) + 1)
         end
         
         def add_to_lists
@@ -169,7 +169,7 @@ module Huberry
         def remove_from_list(list_name = nil)
           options = evaluate_sortable_options(list_name)
           move_lower_items(:up, send(options[:column]), list_name)
-          send("#{options[:column]}=", nil)
+          send("#{options[:column]}=".to_sym, nil)
         end
         
         def remove_from_lists
@@ -182,9 +182,9 @@ module Huberry
         
         def update_lists
           new_values = sortable_scope_changes.inject({}) { |hash, scope| hash[scope] = send(scope).dup rescue nil; hash }
-          sortable_scope_changes.each { |scope| send("#{scope}=", send("#{scope}_was")) }
+          sortable_scope_changes.each { |scope| send("#{scope}=".to_sym, send("#{scope}_was".to_sym)) }
           remove_from_lists
-          new_values.each { |scope, value| send("#{scope}=", value) }
+          new_values.each { |scope, value| send("#{scope}=".to_sym, value) }
           add_to_lists
         end
     end

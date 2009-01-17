@@ -2,6 +2,7 @@
   * Update logic and add some tests
   * Add more tests
   * Rename README.markdown to README.rdoc
+  * Symbolize arguments for calls to the "send" method
 
 2009-01-15 - Sean Huber (shuber@huberry.com)
   * Initial commit
