@@ -220,6 +220,17 @@ class SortableTest < Test::Unit::TestCase
     assert @todo.sortable_scope_changed?
   end
   
+  def test_should_list_attrs_in_sortable_scope_changes
+    @todo = Todo.new
+    assert_equal [], @todo.sortable_scope_changes
+    @todo.project_id = 1
+    assert_equal [], @todo.sortable_scope_changes
+    assert @todo.save
+    @todo.reload
+    @todo.project_id = 2
+    assert [:project_id], @todo.sortable_scope_changes
+  end
+  
   def test_should_raise_invalid_sortable_list_error_if_list_does_not_exist
     @todo = Todo.create
     assert_raises ::Huberry::Sortable::InvalidSortableList do

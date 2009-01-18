@@ -280,6 +280,11 @@ module Huberry
         !sortable_scope_changes.empty?
       end
       
+      # Stores an array of attributes specified as a <tt>:scope</tt> that have been changed
+      def sortable_scope_changes
+        @sortable_scope_changes ||= []
+      end
+      
       protected
         
         # Adds the current item to the specified list
@@ -328,11 +333,6 @@ module Huberry
         # Removes the current item from all sortable lists
         def remove_from_lists
           self.class.sortable_lists.each { |list_name, options| remove_from_list(list_name) }
-        end
-        
-        # Stores an array of attributes specified as a <tt>:scope</tt> that have been changed
-        def sortable_scope_changes
-          @sortable_scope_changes ||= []
         end
         
         # Removes the current item from its old lists and adds it to new lists if any attributes specified as a <tt>:scope</tt> have been changed
