@@ -2,6 +2,7 @@
   * Update code documentation
   * Make the sortable_scope_changes instance method public
   * Add more tests
+  * Update README
 
 2009-01-16 - Sean Huber (shuber@huberry.com)
   * Update logic and add some tests

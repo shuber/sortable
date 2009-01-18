@@ -1,6 +1,6 @@
 = sortable
 
-Allows you to sort ActiveRecord records similar to http://github.com/rails/acts_as_list but with support for multiple scopes and lists
+Allows you to sort ActiveRecord items similar to http://github.com/rails/acts_as_list but with support for multiple scopes and lists
 
 
 == Installation
@@ -10,9 +10,112 @@ Allows you to sort ActiveRecord records similar to http://github.com/rails/acts_
   script/plugin install git://github.com/shuber/sortable.git
 
 
-== Usage
+== Examples
 
-Coming soon...
+=== Simple
+
+Works just like http://github.com/rails/acts_as_list
+
+  class Todo < ActiveRecord::Base
+    # schema
+    #   id           :integer
+    #   project_id   :integer
+    #   description  :string
+    #   position     :integer
+    sortable :scope => :project_id
+  end
+  
+  @todo = Todo.create(:description => 'do something', :project_id => 1)
+  @todo_2 = Todo.create(:description => 'do something else', :project_id => 1)
+  @todo_3 = Todo.create(:description => 'some other task', :project_id => 2)
+  
+  @todo.position # 1
+  @todo_2.position # 2
+  @todo_3.position # 1
+  
+  @todo.move_down!
+  @todo_2.reload
+  
+  @todo.position # 2
+  @todo_2.position # 1
+  @todo_3.position # 1
+
+
+=== Multiple scopes
+
+Stories may or may not be in a sprint, but if we scoped just by :sprint_id, all stories with a nil :sprint_id 
+would be sorted in one giant list instead of being sorted in each of their respective projects. Specifying an 
+array of scopes fixes this problem.
+
+  class Story < ActiveRecord::Base
+    # schema
+    #   id           :integer
+    #   project_id   :integer
+    #   sprint_id    :integer
+    #   description  :string
+    #   position     :integer
+    sortable :scope => [:project_id, :sprint_id]
+  end
+
+
+=== Multiple lists
+
+Your project management software needs to allow both clients and developers to prioritize todo items separately 
+so that they can be discussed and reviewed during their next meeting. Multiple lists solves this problem.
+
+  class Todo < ActiveRecord::Base
+    # schema
+    #   id                  :integer
+    #   project_id          :integer
+    #   description         :string
+    #   client_priority     :integer
+    #   developer_priority  :integer
+    sortable :scope => :project_id, :column => :client_priority, :list_name => :client
+    sortable :scope => :project_id, :column => :developer_priority, :list_name => :developer
+  end
+  
+  @todo = Todo.create(:description => 'do something', :project_id => 1)
+  @todo_2 = Todo.create(:description => 'do something else', :project_id => 1)
+  
+  @todo.client_priority # 1
+  @todo.developer_priority # 1
+  @todo_2.client_priority # 2
+  @todo_2.developer_priority # 2
+  
+  @todo.move_down!(:client)
+  @todo_2.reload
+  
+  @todo.client_priority # 2
+  @todo.developer_priority # 1
+  @todo_2.client_priority # 1
+  @todo_2.developer_priority # 2
+
+
+=== Switching scope
+
+Any attributes specified as a :scope that are changed on an item cause the item to automatically switch lists when it is saved
+
+  class Todo < ActiveRecord::Base
+    # schema
+    #   id           :integer
+    #   project_id   :integer
+    #   description  :string
+    #   position     :integer
+    sortable :scope => :project_id
+  end
+  
+  @todo = Todo.create(:description => 'do something', :project_id => 1)
+  @todo_2 = Todo.create(:description => 'do something else', :project_id => 1)
+  
+  @todo.position # 1
+  @todo_2.position # 2
+  
+  @todo.project_id = 2
+  @todo.save
+  @todo_2.reload
+  
+  @todo.position # 1
+  @todo_2.position # 1
 
 
 == Contact
