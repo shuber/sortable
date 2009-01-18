@@ -14,6 +14,7 @@ def create_todos_table
         t.string   :action
         t.integer  :client_priority
         t.integer  :developer_priority
+        t.integer  :position
       end
     end
   end
@@ -23,6 +24,7 @@ end
 create_todos_table
 
 class Todo < ActiveRecord::Base
+  sortable :scope => :project_id, :conditions => 'todos.action IS NOT NULL'
   sortable :scope => :project_id, :column => :client_priority, :list_name => :client
   sortable :scope => :project_id, :column => :developer_priority, :list_name => :developer
 end
@@ -236,6 +238,21 @@ class SortableTest < Test::Unit::TestCase
     assert_raises ::Huberry::Sortable::InvalidSortableList do
       @todo.move_up!(:invalid)
     end
+  end
+  
+  def test_should_use_conditions
+    @todo = Todo.create
+    @todo_2 = Todo.create :action => 'test'
+    @todo_3 = Todo.create
+    @todo_4 = Todo.create :action => 'test again'
+    @todo_5 = Todo.create
+    @todo_6 = Todo.create
+    assert_equal 1, @todo.position
+    assert_equal 1, @todo_2.position
+    assert_equal 2, @todo_3.position
+    assert_equal 2, @todo_4.position
+    assert_equal 3, @todo_5.position
+    assert_equal 3, @todo_6.position
   end
   
 end
