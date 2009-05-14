@@ -1,3 +1,6 @@
+2009-05-14 - Sean Huber (shuber@huberry.com)
+  * Remove MIT-LICENSE from gemspec - github complaining for some reason
+
 2009-05-13 - Sean Huber (shuber@huberry.com)
   * Fix bug - item_at_offset method was not scoping correctly
   * Rename MIT_LICENSE to MIT-LICENSE
