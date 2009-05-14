@@ -105,14 +105,16 @@ class SortableTest < Test::Unit::TestCase
   
   def test_item_at_offset_should_return_previous_item
     @todo = Todo.create
-    @todo_2 = Todo.create
-    assert_equal @todo, @todo_2.item_at_offset(-1, :client)
+    @todo_2 = Todo.create :project_id => 1
+    @todo_3 = Todo.create
+    assert_equal @todo, @todo_3.item_at_offset(-1, :client)
   end
   
   def test_item_at_offset_should_return_next_item
     @todo = Todo.create
-    @todo_2 = Todo.create
-    assert_equal @todo_2, @todo.item_at_offset(1, :client)
+    @todo_2 = Todo.create :project_id => 1
+    @todo_3 = Todo.create
+    assert_equal @todo_3, @todo.item_at_offset(1, :client)
   end
   
   def test_item_at_offset_should_return_nil_for_non_existent_offset

@@ -204,7 +204,7 @@ module Huberry
       # Returns nil if an item at the specified offset could not be found
       def item_at_offset(offset, list_name = nil)
         options = evaluate_sortable_options(list_name)
-        in_list?(list_name) ? self.class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset) : nil
+        in_list?(list_name) ? self.class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset, :conditions => options[:conditions]) : nil
       end
       
       # Returns the last item in a list associated with the current item

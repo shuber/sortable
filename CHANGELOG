@@ -1,3 +1,6 @@
+2009-05-13 - Sean Huber (shuber@huberry.com)
+  * Fix bug - item_at_offset method was not scoping correctly
+
 2009-01-17 - Sean Huber (shuber@huberry.com)
   * Update code documentation
   * Make the sortable_scope_changes instance method public
