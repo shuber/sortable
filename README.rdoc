@@ -2,6 +2,8 @@
 
 Allows you to sort ActiveRecord items similar to http://github.com/rails/acts_as_list but with added support for multiple scopes and lists
 
+Requires ActiveRecord >= 2.0.0
+
 
 == Installation
 

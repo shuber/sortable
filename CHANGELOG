@@ -1,3 +1,6 @@
+2009-05-28 - Sean Huber (shuber@huberry.com)
+  * All active record versions >= 2.0.0 are now fully supported
+
 2009-05-27 - Sean Huber (shuber@huberry.com)
   * Use self.class.base_class when scoping records
   * Fix conflicts

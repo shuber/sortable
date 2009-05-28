@@ -146,7 +146,7 @@ module Huberry
         base.class_eval do
           before_create :add_to_lists
           before_destroy :remove_from_lists
-          before_update :update_lists, :if => :sortable_scope_changed?
+          before_update :update_lists
           alias_method_chain :reload, :sortable
         end
       end
@@ -214,7 +214,8 @@ module Huberry
       def last_item(list_name = nil)
         options = evaluate_sortable_options(list_name)
         (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]) << " AND #{self.class.table_name}.#{options[:column]} IS NOT NULL "
-        self.class.base_class.find(:last, :conditions => options[:conditions], :order => options[:column].to_s)
+        klass, conditions = [self.class.base_class, { :conditions => options[:conditions] }]
+        klass.send("find_by_#{options[:column]}".to_sym, klass.maximum(options[:column].to_s, conditions), conditions)
       end
       
       # Returns a boolean after determining if the current item is the last item in the specified list
@@ -261,9 +262,9 @@ module Huberry
       end
       
       # Clears any <tt>sortable_scope_changes</tt> and reloads normally
-      def reload_with_sortable
+      def reload_with_sortable(*args)
         @sortable_scope_changes = nil
-        reload_without_sortable
+        reload_without_sortable(*args)
       end
       
       # Removes the current item from the specified list and saves
@@ -340,11 +341,13 @@ module Huberry
         
         # Removes the current item from its old lists and adds it to new lists if any attributes specified as a <tt>:scope</tt> have been changed
         def update_lists
-          new_values = sortable_scope_changes.inject({}) { |hash, scope| value = send(scope); hash[scope] = value.nil? ? nil : value.dup; hash }
-          sortable_scope_changes.each { |scope| send("#{scope}=".to_sym, send("#{scope}_was".to_sym)) }
-          remove_from_lists
-          new_values.each { |scope, value| send("#{scope}=".to_sym, value) }
-          add_to_lists
+          if self.sortable_scope_changed?
+            new_values = sortable_scope_changes.inject({}) { |hash, scope| value = send(scope); hash[scope] = value.nil? ? nil : value.dup; hash }
+            sortable_scope_changes.each { |scope| send("#{scope}=".to_sym, send("#{scope}_was".to_sym)) }
+            remove_from_lists
+            new_values.each { |scope, value| send("#{scope}=".to_sym, value) }
+            add_to_lists
+          end
         end
     end
   end

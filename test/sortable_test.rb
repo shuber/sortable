@@ -1,6 +1,10 @@
 require 'test/unit'
 require 'rubygems'
-gem 'activerecord'
+
+args = ['activerecord']
+args << ENV['ACTIVE_RECORD_VERSION'] if ENV['ACTIVE_RECORD_VERSION']
+send(:gem, *args)
+
 require 'active_record'
 require File.dirname(__FILE__) + '/../lib/sortable'
 
