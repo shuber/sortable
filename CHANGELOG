@@ -1,5 +1,10 @@
 2009-05-27 - Sean Huber (shuber@huberry.com)
   * Use self.class.base_class when scoping records
+  * Fix conflicts
+
+2009-05-14 - Sean Huber (shuber@huberry.com)
+  * Remove MIT-LICENSE from gemspec - github complaining for some reason
+  * Type cast position and offset arguments as integers
 
 2009-05-13 - Sean Huber (shuber@huberry.com)
   * Fix bug - item_at_offset method was not scoping correctly

@@ -182,13 +182,16 @@ module Huberry
       #
       # Also aliased as <tt>insert_at_position!</tt>
       def insert_at!(position = 1, list_name = nil)
-        remove_from_list!(list_name)
-        if position > last_position(list_name)
-          add_to_list!(list_name)
-        else
-          move_lower_items(:down, position - 1, list_name)
-          send("#{evaluate_sortable_options(list_name)[:column]}=".to_sym, position)
-          save
+        position = position.to_s.to_i
+        if position > 0
+          remove_from_list!(list_name)
+          if position > last_position(list_name)
+            add_to_list!(list_name)
+          else
+            move_lower_items(:down, position - 1, list_name)
+            send("#{evaluate_sortable_options(list_name)[:column]}=".to_sym, position)
+            save
+          end
         end
       end
       alias_method :insert_at_position!, :insert_at!
@@ -204,7 +207,7 @@ module Huberry
       # Returns nil if an item at the specified offset could not be found
       def item_at_offset(offset, list_name = nil)
         options = evaluate_sortable_options(list_name)
-        in_list?(list_name) ? self.class.base_class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset, :conditions => options[:conditions]) : nil
+        in_list?(list_name) ? self.class.base_class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset.to_s.to_i, :conditions => options[:conditions]) : nil
       end
       
       # Returns the last item in a list associated with the current item
