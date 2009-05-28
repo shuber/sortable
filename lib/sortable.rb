@@ -163,7 +163,7 @@ module Huberry
       # Returns the first item in a list associated with the current item
       def first_item(list_name = nil)
         options = evaluate_sortable_options(list_name)
-        self.class.send("find_by_#{options[:column]}".to_sym, 1, :conditions => options[:conditions])
+        self.class.base_class.send("find_by_#{options[:column]}".to_sym, 1, :conditions => options[:conditions])
       end
       
       # Returns a boolean after determining if the current item is the first item in the specified list
@@ -204,14 +204,14 @@ module Huberry
       # Returns nil if an item at the specified offset could not be found
       def item_at_offset(offset, list_name = nil)
         options = evaluate_sortable_options(list_name)
-        in_list?(list_name) ? self.class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset, :conditions => options[:conditions]) : nil
+        in_list?(list_name) ? self.class.base_class.send("find_by_#{options[:column]}".to_sym, send(options[:column]) + offset, :conditions => options[:conditions]) : nil
       end
       
       # Returns the last item in a list associated with the current item
       def last_item(list_name = nil)
         options = evaluate_sortable_options(list_name)
         (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]) << " AND #{self.class.table_name}.#{options[:column]} IS NOT NULL "
-        self.class.find(:last, :conditions => options[:conditions], :order => options[:column].to_s)
+        self.class.base_class.find(:last, :conditions => options[:conditions], :order => options[:column].to_s)
       end
       
       # Returns a boolean after determining if the current item is the last item in the specified list
@@ -302,7 +302,7 @@ module Huberry
         # Returns the evaluated options
         def evaluate_sortable_options(list_name = nil)
           self.class.assert_sortable_list_exists!(list_name)
-          options = self.class.sortable_lists[list_name.to_s].inject({}) { |hash, pair| hash[pair.first] = pair.last.nil? || pair.last.is_a?(Symbol) ? pair.last : pair.last.dup; hash }
+          options = self.class.sortable_lists[list_name.to_s].inject({}) { |hash, pair| hash.merge! pair.first => (pair.last.dup rescue pair.last) }
           options[:scope].each do |scope|
             value = send(scope)
             if value.nil?
@@ -312,7 +312,7 @@ module Huberry
               options[:conditions] << value
             end
           end
-          options
+          options     
         end
         
         # Moves items with a position lower than a certain <tt>position</tt> by an offset of 1 in the specified 
@@ -320,7 +320,7 @@ module Huberry
         def move_lower_items(direction, position, list_name = nil)
           options = evaluate_sortable_options(list_name)
           (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]) << " AND #{self.class.table_name}.#{options[:column]} > '#{position}' AND #{self.class.table_name}.#{options[:column]} IS NOT NULL "
-          self.class.update_all "#{options[:column]} = #{options[:column]} #{direction == :up ? '-' : '+'} 1", options[:conditions]
+          self.class.base_class.update_all "#{options[:column]} = #{options[:column]} #{direction == :up ? '-' : '+'} 1", options[:conditions]
         end
         
         # Removes the current item from the specified list

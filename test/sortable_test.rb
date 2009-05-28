@@ -6,14 +6,20 @@ require File.dirname(__FILE__) + '/../lib/sortable'
 
 ActiveRecord::Base.establish_connection :adapter => 'sqlite3', :database => ':memory:'
 
-def create_todos_table
+def create_tables
   silence_stream(STDOUT) do
     ActiveRecord::Schema.define(:version => 1) do
       create_table :todos do |t|
         t.integer  :project_id
+        t.string   :type
         t.string   :action
         t.integer  :client_priority
         t.integer  :developer_priority
+        t.integer  :position
+      end
+      
+      create_table :users do |t|
+        t.string   :type
         t.integer  :position
       end
     end
@@ -21,7 +27,7 @@ def create_todos_table
 end
 
 # The table needs to exist before defining the class
-create_todos_table
+create_tables
 
 class Todo < ActiveRecord::Base
   sortable :scope => :project_id, :conditions => 'todos.action IS NOT NULL'
@@ -29,11 +35,21 @@ class Todo < ActiveRecord::Base
   sortable :scope => :project_id, :column => :developer_priority, :list_name => :developer
 end
 
+class TodoChild < Todo
+end
+
+class User < ActiveRecord::Base
+  sortable :scope => :type
+end
+
+class Admin < User
+end
+
 class SortableTest < Test::Unit::TestCase
   
   def setup
     ActiveRecord::Base.connection.tables.each { |table| ActiveRecord::Base.connection.drop_table(table) }
-    create_todos_table
+    create_tables
   end
   
   def test_should_add_to_lists
@@ -255,6 +271,26 @@ class SortableTest < Test::Unit::TestCase
     assert_equal 2, @todo_4.position
     assert_equal 3, @todo_5.position
     assert_equal 3, @todo_6.position
+  end
+  
+  def test_should_scope_with_base_class
+    @todo = Todo.create :action => 'test'
+    @todo_2 = TodoChild.create :action => 'test'
+    @todo_3 = Todo.create :action => 'test'
+    assert_equal 1, @todo.position
+    assert_equal 2, @todo_2.position
+    assert_equal 3, @todo_3.position
+  end
+  
+  def test_should_not_scope_with_base_class
+    @user = User.create
+    @admin = Admin.create
+    @user_2 = User.create
+    @admin_2 = Admin.create
+    assert_equal 1, @user.position
+    assert_equal 2, @user_2.position
+    assert_equal 1, @admin.position
+    assert_equal 2, @admin_2.position
   end
   
 end

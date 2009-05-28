@@ -1,6 +1,6 @@
 = sortable
 
-Allows you to sort ActiveRecord items similar to http://github.com/rails/acts_as_list but with support for multiple scopes and lists
+Allows you to sort ActiveRecord items similar to http://github.com/rails/acts_as_list but with added support for multiple scopes and lists
 
 
 == Installation
