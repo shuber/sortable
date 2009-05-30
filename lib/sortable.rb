@@ -124,10 +124,11 @@ module Huberry
       define_attribute_methods
       
       options = { :column => :position, :conditions => '1 = 1', :list_name => nil, :scope => [] }.merge(options)
-      options[:scope] = [options[:scope]] unless options[:scope].is_a?(Array)
+      options[:conditions] = Array(options[:conditions])
+      options[:scope] = Array(options[:scope])
       
       options[:scope].each do |scope|
-        (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]) << " AND (#{table_name}.#{scope} = ?) "
+        options[:conditions].first << " AND (#{table_name}.#{scope} = ?)"
         
         unless instance_methods.include?("#{scope}_with_sortable=")
           define_method "#{scope}_with_sortable=" do |value|
@@ -213,7 +214,7 @@ module Huberry
       # Returns the last item in a list associated with the current item
       def last_item(list_name = nil)
         options = evaluate_sortable_options(list_name)
-        (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]) << " AND #{self.class.table_name}.#{options[:column]} IS NOT NULL "
+        options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} IS NOT NULL"
         klass, conditions = [self.class.base_class, { :conditions => options[:conditions] }]
         klass.send("find_by_#{options[:column]}".to_sym, klass.maximum(options[:column].to_s, conditions), conditions)
       end
@@ -306,13 +307,12 @@ module Huberry
         # Returns the evaluated options
         def evaluate_sortable_options(list_name = nil)
           self.class.assert_sortable_list_exists!(list_name)
-          options = self.class.sortable_lists[list_name.to_s].inject({}) { |hash, pair| hash.merge! pair.first => (pair.last.dup rescue pair.last) }
+          options = self.class.sortable_lists[list_name.to_s].inject({}) { |hash, (key, value)| hash.merge! key => Marshal::load(Marshal.dump(value)) } # deep dup
           options[:scope].each do |scope|
             value = send(scope)
             if value.nil?
-              (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]).gsub!(/#{scope} \= \?/, "#{scope} IS NULL")
+              options[:conditions].first.gsub!(/#{scope} \= \?/, "#{scope} IS NULL")
             else
-              options[:conditions] = [options[:conditions]] unless options[:conditions].is_a?(Array)
               options[:conditions] << value
             end
           end
@@ -323,7 +323,7 @@ module Huberry
         # <tt>direction</tt> (:up or :down) for the specified list
         def move_lower_items(direction, position, list_name = nil)
           options = evaluate_sortable_options(list_name)
-          (options[:conditions].is_a?(Array) ? options[:conditions].first : options[:conditions]) << " AND #{self.class.table_name}.#{options[:column]} > '#{position}' AND #{self.class.table_name}.#{options[:column]} IS NOT NULL "
+          options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} > '#{position}' AND #{self.class.table_name}.#{options[:column]} IS NOT NULL"
           self.class.base_class.update_all "#{options[:column]} = #{options[:column]} #{direction == :up ? '-' : '+'} 1", options[:conditions]
         end
         
