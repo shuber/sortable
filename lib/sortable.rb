@@ -123,7 +123,8 @@ module Huberry
       
       define_attribute_methods
       
-      options = { :column => :position, :conditions => '1 = 1', :list_name => nil, :scope => [] }.merge(options)
+      options = { :column => :position, :conditions => {}, :list_name => nil, :scope => [] }.merge(options)
+      options[:conditions].inject('1 = 1') { |conditions, (key, value)| conditions.first << " AND #{table_name}.#{key} = ?"; conditions << value } if options[:conditions].is_a?(Hash)
       options[:conditions] = Array(options[:conditions])
       options[:scope] = Array(options[:scope])
       
