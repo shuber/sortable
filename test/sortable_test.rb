@@ -309,4 +309,18 @@ class SortableTest < Test::Unit::TestCase
     assert_equal 2, @user_3.steves_position
   end
   
+  def test_should_return_higher_items
+    @user = User.create
+    @user_2 = User.create
+    @user_3 = User.create
+    assert_equal [@user, @user_2], @user_3.higher_items
+  end
+  
+  def test_should_return_lower_items
+    @user = User.create
+    @user_2 = User.create
+    @user_3 = User.create
+    assert_equal [@user_2, @user_3], @user.lower_items
+  end
+  
 end

@@ -182,6 +182,14 @@ module Huberry
         self == first_item(list_name)
       end
       
+      # Returns an array of items higher than the current item in the specified list
+      def higher_items(list_name = nil)
+        options = evaluate_sortable_options(list_name)
+        options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} < ?"
+        options[:conditions] << send(options[:column])
+        self.class.base_class.find(:all, :conditions => options[:conditions], :order => options[:column])
+      end
+      
       # Returns a boolean after determining if the current item is in the specified list
       def in_list?(list_name = nil)
         !new_record? && !send(evaluate_sortable_options(list_name)[:column]).nil?
@@ -226,7 +234,7 @@ module Huberry
         options = evaluate_sortable_options(list_name)
         options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} IS NOT NULL"
         klass, conditions = [self.class.base_class, { :conditions => options[:conditions] }]
-        klass.send("find_by_#{options[:column]}".to_sym, klass.maximum(options[:column].to_s, conditions), conditions)
+        klass.send("find_by_#{options[:column]}".to_sym, klass.maximum(options[:column], conditions), conditions)
       end
       
       # Returns a boolean after determining if the current item is the last item in the specified list
@@ -240,6 +248,14 @@ module Huberry
       def last_position(list_name = nil)
         item = last_item(list_name)
         item.nil? ? 0 : item.send(evaluate_sortable_options(list_name)[:column])
+      end
+      
+      # Returns an array of items lower than the current item in the specified list
+      def lower_items(list_name = nil)
+        options = evaluate_sortable_options(list_name)
+        options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} > ?"
+        options[:conditions] << send(options[:column])
+        self.class.base_class.find(:all, :conditions => options[:conditions], :order => "#{self.class.table_name}.#{options[:column]}")
       end
       
       # Moves the current item down one position in the specified list and saves
@@ -333,7 +349,8 @@ module Huberry
         # <tt>direction</tt> (:up or :down) for the specified list
         def move_lower_items(direction, position, list_name = nil)
           options = evaluate_sortable_options(list_name)
-          options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} > '#{position}' AND #{self.class.table_name}.#{options[:column]} IS NOT NULL"
+          options[:conditions].first << " AND #{self.class.table_name}.#{options[:column]} > ? AND #{self.class.table_name}.#{options[:column]} IS NOT NULL"
+          options[:conditions] << position
           self.class.base_class.update_all "#{options[:column]} = #{options[:column]} #{direction == :up ? '-' : '+'} 1", options[:conditions]
         end
         
