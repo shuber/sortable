@@ -2,6 +2,7 @@
   * Always convert options[:conditions] into an array
   * options[:conditions] can be a hash
   * Add higher_items and lower_items instance methods
+  * Update README.rdoc
 
 2009-05-29 - Sean Huber (shuber@huberry.com)
   * Call remove_from_lists after destroy instead of before in case any other before_destroy callbacks fail

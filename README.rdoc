@@ -133,6 +133,9 @@ Any attributes specified as a :scope that are changed on an item cause the item 
   # Returns a boolean after determining if the current item is the first item in the specified list
   first_item?(list_name = nil)
   
+  # Returns an array of items higher than the current item in the specified list
+  higher_items(list_name = nil)
+  
   # Returns a boolean after determining if the current item is in the specified list
   in_list?(list_name = nil)
   
@@ -164,6 +167,9 @@ Any attributes specified as a :scope that are changed on an item cause the item 
   #
   # Returns 0 if there are no items in the specified list
   last_position(list_name = nil)
+  
+  # Returns an array of items lower than the current item in the specified list
+  lower_items(list_name = nil)
   
   # Moves the current item down one position in the specified list and saves
   move_down!(list_name = nil)
