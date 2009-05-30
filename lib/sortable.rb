@@ -12,7 +12,7 @@ module Huberry
     # Accepts four options:
     #
     #   :column     => The name of the column that will be used to store an item's position in the list. Defaults to :position
-    #   :conditions => Any extra constraints to use if you need to specify a tighter scope than just a foreign key. Defaults to '1 = 1'
+    #   :conditions => Any extra constraints to use if you need to specify a tighter scope than just a foreign key. Defaults to {}
     #   :list_name  => The name of the list (this is used when calling all sortable related instance methods). Defaults to nil
     #   :scope      => A foreign key or an array of foreign keys to use as list constraints. Defaults to []
     #
@@ -124,10 +124,19 @@ module Huberry
       define_attribute_methods
       
       options = { :column => :position, :conditions => {}, :list_name => nil, :scope => [] }.merge(options)
-      options[:conditions].inject('1 = 1') { |conditions, (key, value)| conditions.first << " AND #{table_name}.#{key} = ?"; conditions << value } if options[:conditions].is_a?(Hash)
-      options[:conditions] = Array(options[:conditions])
-      options[:scope] = Array(options[:scope])
       
+      options[:conditions] = options[:conditions].inject(['1 = 1']) do |conditions, (key, value)| 
+        conditions.first << " AND #{key.is_a?(Symbol) ? "#{table_name}.#{key}" : key} "
+        if value.nil?
+          conditions.first << 'IS NULL'
+        else
+          conditions.first << '= ?'
+          conditions << value
+        end
+      end if options[:conditions].is_a?(Hash)
+      options[:conditions] = Array(options[:conditions])
+      
+      options[:scope] = Array(options[:scope])
       options[:scope].each do |scope|
         options[:conditions].first << " AND (#{table_name}.#{scope} = ?)"
         

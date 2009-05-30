@@ -24,7 +24,9 @@ def create_tables
       
       create_table :users do |t|
         t.string   :type
+        t.string   :name
         t.integer  :position
+        t.integer  :steves_position
       end
     end
   end
@@ -44,6 +46,7 @@ end
 
 class User < ActiveRecord::Base
   sortable :scope => :type
+  sortable :conditions => { :name => 'steve' }, :column => :steves_position, :list_name => :steves
 end
 
 class Admin < User
@@ -295,6 +298,15 @@ class SortableTest < Test::Unit::TestCase
     assert_equal 2, @user_2.position
     assert_equal 1, @admin.position
     assert_equal 2, @admin_2.position
+  end
+  
+  def test_should_accept_hash_conditions
+    @user = User.create :name => 'steve'
+    @user_2 = User.create :name => 'bob'
+    @user_3 = User.create :name => 'steve'
+    assert_equal 1, @user.steves_position
+    assert_equal 2, @user_2.steves_position
+    assert_equal 2, @user_3.steves_position
   end
   
 end
