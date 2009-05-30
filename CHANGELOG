@@ -1,3 +1,6 @@
+2009-05-29 - Sean Huber (shuber@huberry.com)
+  * Call remove_from_lists after destroy instead of before in case any other before_destroy callbacks fail
+
 2009-05-28 - Sean Huber (shuber@huberry.com)
   * All active record versions >= 2.0.0 are now fully supported
 

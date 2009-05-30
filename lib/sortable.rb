@@ -145,8 +145,8 @@ module Huberry
       def self.included(base)
         base.class_eval do
           before_create :add_to_lists
-          before_destroy :remove_from_lists
           before_update :update_lists
+          after_destroy :remove_from_lists
           alias_method_chain :reload, :sortable
         end
       end
@@ -331,7 +331,7 @@ module Huberry
         def remove_from_list(list_name = nil)
           options = evaluate_sortable_options(list_name)
           move_lower_items(:up, send(options[:column]), list_name)
-          send("#{options[:column]}=".to_sym, nil)
+          send("#{options[:column]}=".to_sym, nil) unless self.frozen?
         end
         
         # Removes the current item from all sortable lists
