@@ -27,6 +27,8 @@ def create_tables
         t.string   :name
         t.integer  :position
         t.integer  :steves_position
+        t.boolean  :topuser
+        t.integer  :topuser_position
       end
     end
   end
@@ -47,6 +49,7 @@ end
 class User < ActiveRecord::Base
   sortable :scope => :type
   sortable :conditions => { :name => 'steve' }, :column => :steves_position, :list_name => :steves
+  sortable :scope => :topuser, :column => :topuser_position, :list_name => :topusers
 end
 
 class Admin < User
@@ -321,6 +324,16 @@ class SortableTest < Test::Unit::TestCase
     @user_2 = User.create
     @user_3 = User.create
     assert_equal [@user_2, @user_3], @user.lower_items
+  end
+  
+  def test_should_work_with_boolean_scope
+    @user = User.create :topuser => false
+    @user_2 = User.create :topuser => false
+    assert_equal 1, @user.topuser_position
+    assert_equal 2, @user_2.topuser_position
+    @user_2.topuser = true
+    @user_2.save
+    assert_equal 1, @user_2.topuser_position
   end
   
 end

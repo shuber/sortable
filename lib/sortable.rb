@@ -369,8 +369,15 @@ module Huberry
         # Removes the current item from its old lists and adds it to new lists if any attributes specified as a <tt>:scope</tt> have been changed
         def update_lists
           if self.sortable_scope_changed?
-            new_values = sortable_scope_changes.inject({}) { |hash, scope| value = send(scope); hash[scope] = value.nil? ? nil : value.dup; hash }
-            sortable_scope_changes.each { |scope| send("#{scope}=".to_sym, send("#{scope}_was".to_sym)) }
+            new_values = sortable_scope_changes.inject({}) do |hash, scope|
+              value = send(scope)
+              hash[scope] = value.nil? ? nil : (value.dup rescue value)
+              hash
+            end
+            sortable_scope_changes.each do |scope| 
+              old_value = respond_to?("#{scope}_was".to_sym) ? send("#{scope}_was".to_sym) : !send(scope) # booleans don't have _was methods in older versions
+              send("#{scope}=".to_sym, old_value)
+            end
             remove_from_lists
             new_values.each { |scope, value| send("#{scope}=".to_sym, value) }
             add_to_lists
