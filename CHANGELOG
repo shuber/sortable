@@ -1,5 +1,6 @@
 2009-07-06 - Sean Huber (shuber@huberry.com)
   * Fix bug related to boolean scopes
+  * Update gemspec
 
 2009-05-30 - Sean Huber (shuber@huberry.com)
   * Always convert options[:conditions] into an array

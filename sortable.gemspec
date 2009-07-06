@@ -1,7 +1,7 @@
 Gem::Specification.new do |s| 
   s.name    = 'sortable'
-  s.version = '1.0.5'
-  s.date    = '2009-05-30'
+  s.version = '1.0.6'
+  s.date    = '2009-07-06'
   
   s.summary     = 'Allows you to sort ActiveRecord items in multiple lists with multiple scopes'
   s.description = 'Allows you to sort ActiveRecord items in multiple lists with multiple scopes'
