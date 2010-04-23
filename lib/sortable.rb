@@ -142,7 +142,7 @@ module Huberry
         
         unless instance_methods.include?("#{scope}_with_sortable=")
           define_method "#{scope}_with_sortable=" do |value|
-            sortable_scope_changes << scope unless sortable_scope_changes.include?(scope) || new_record? || value == send(scope) || !self.class.sortable_lists.any? { |list_name, configuration| configuration[:scope].include?(scope) }
+            sortable_scope_changes << scope unless sortable_scope_changes.include?(scope) || new_record? || value.to_s == send(scope).to_s || !self.class.sortable_lists.any? { |list_name, configuration| configuration[:scope].include?(scope) }
             send("#{scope}_without_sortable=".to_sym, value)
           end
           alias_method_chain "#{scope}=".to_sym, :sortable
